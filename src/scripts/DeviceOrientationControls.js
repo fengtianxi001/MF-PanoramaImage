@@ -5,110 +5,116 @@
  * W3C Device Orientation control (http://w3c.github.io/deviceorientation/spec-source-orientation.html)
  */
 
-import { Euler, Math as _Math, Quaternion, Vector3 } from "three/build/three.module.js";
+ import {
+	Euler,
+	Math as _Math,
+	Quaternion,
+	Vector3
+} from "./three.module.js";
 
-var DeviceOrientationControls = function (object) {
-  var scope = this;
+var DeviceOrientationControls = function ( object ) {
 
-  this.object = object;
-  this.object.rotation.reorder("YXZ");
+	var scope = this;
 
-  this.enabled = true;
+	this.object = object;
+	this.object.rotation.reorder( 'YXZ' );
 
-  this.deviceOrientation = {};
-  this.screenOrientation = 0;
+	this.enabled = true;
 
-  this.alphaOffset = 0; // radians
+	this.deviceOrientation = {};
+	this.screenOrientation = 0;
 
-  var onDeviceOrientationChangeEvent = function (event) {
-    scope.deviceOrientation = event;
-  };
+	this.alphaOffset = 0; // radians
 
-  var onScreenOrientationChangeEvent = function () {
-    scope.screenOrientation = window.orientation || 0;
-  };
+	var onDeviceOrientationChangeEvent = function ( event ) {
 
-  // The angles alpha, beta and gamma form a set of intrinsic Tait-Bryan angles of type Z-X'-Y''
+		scope.deviceOrientation = event;
 
-  var setObjectQuaternion = (function () {
-    var zee = new Vector3(0, 0, 1);
+	};
 
-    var euler = new Euler();
+	var onScreenOrientationChangeEvent = function () {
 
-    var q0 = new Quaternion();
+		scope.screenOrientation = window.orientation || 0;
 
-    var q1 = new Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5)); // - PI/2 around the x-axis
+	};
 
-    return function (quaternion, alpha, beta, gamma, orient) {
-      euler.set(beta, alpha, -gamma, "YXZ"); // 'ZXY' for the device, but 'YXZ' for us
+	// The angles alpha, beta and gamma form a set of intrinsic Tait-Bryan angles of type Z-X'-Y''
 
-      quaternion.setFromEuler(euler); // orient the device
+	var setObjectQuaternion = function () {
 
-      quaternion.multiply(q1); // camera looks out the back of the device, not the top
+		var zee = new Vector3( 0, 0, 1 );
 
-      quaternion.multiply(q0.setFromAxisAngle(zee, -orient)); // adjust for screen orientation
-    };
-  })();
+		var euler = new Euler();
 
-  this.connect = function () {
-    onScreenOrientationChangeEvent(); // run once on load
+		var q0 = new Quaternion();
 
-    window.addEventListener(
-      "orientationchange",
-      onScreenOrientationChangeEvent,
-      false
-    );
-    window.addEventListener(
-      "deviceorientation",
-      onDeviceOrientationChangeEvent,
-      false
-    );
+		var q1 = new Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) ); // - PI/2 around the x-axis
 
-    scope.enabled = true;
-  };
+		return function ( quaternion, alpha, beta, gamma, orient ) {
 
-  this.disconnect = function () {
-    window.removeEventListener(
-      "orientationchange",
-      onScreenOrientationChangeEvent,
-      false
-    );
-    window.removeEventListener(
-      "deviceorientation",
-      onDeviceOrientationChangeEvent,
-      false
-    );
+			euler.set( beta, alpha, - gamma, 'YXZ' ); // 'ZXY' for the device, but 'YXZ' for us
 
-    scope.enabled = false;
-  };
+			quaternion.setFromEuler( euler ); // orient the device
 
-  this.update = function () {
-    if (scope.enabled === false) return;
+			quaternion.multiply( q1 ); // camera looks out the back of the device, not the top
 
-    var device = scope.deviceOrientation;
+			quaternion.multiply( q0.setFromAxisAngle( zee, - orient ) ); // adjust for screen orientation
 
-    if (device) {
-      var alpha = device.alpha
-        ? _Math.degToRad(device.alpha) + scope.alphaOffset
-        : 0; // Z
+		};
 
-      var beta = device.beta ? _Math.degToRad(device.beta) : 0; // X'
+	}();
 
-      var gamma = device.gamma ? _Math.degToRad(device.gamma) : 0; // Y''
+	this.connect = function () {
 
-      var orient = scope.screenOrientation
-        ? _Math.degToRad(scope.screenOrientation)
-        : 0; // O
+		onScreenOrientationChangeEvent(); // run once on load
 
-      setObjectQuaternion(scope.object.quaternion, alpha, beta, gamma, orient);
-    }
-  };
+		window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
+		window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
 
-  this.dispose = function () {
-    scope.disconnect();
-  };
+		scope.enabled = true;
 
-  this.connect();
+	};
+
+	this.disconnect = function () {
+
+		window.removeEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
+		window.removeEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
+
+		scope.enabled = false;
+
+	};
+
+	this.update = function () {
+
+		if ( scope.enabled === false ) return;
+
+		var device = scope.deviceOrientation;
+
+		if ( device ) {
+
+			var alpha = device.alpha ? _Math.degToRad( device.alpha ) + scope.alphaOffset : 0; // Z
+
+			var beta = device.beta ? _Math.degToRad( device.beta ) : 0; // X'
+
+			var gamma = device.gamma ? _Math.degToRad( device.gamma ) : 0; // Y''
+
+			var orient = scope.screenOrientation ? _Math.degToRad( scope.screenOrientation ) : 0; // O
+
+			setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
+
+		}
+
+
+	};
+
+	this.dispose = function () {
+
+		scope.disconnect();
+
+	};
+
+	this.connect();
+
 };
 
 export { DeviceOrientationControls };

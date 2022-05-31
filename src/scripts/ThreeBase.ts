@@ -1,7 +1,10 @@
-import * as THREE from "three";
+//@ts-ignore
+import * as THREE from "./three.module.js";
+// console.log(111,THREE.DeviceOrientationControls)
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 //@ts-ignore
 import { DeviceOrientationControls } from "./DeviceOrientationControls.js";
+console.log(11, 22, DeviceOrientationControls);
 export function fetchImage(name: string) {
   const path = `../images/${name}.jpg`;
   const modules = import.meta.globEager("../images/*.jpg");
@@ -44,12 +47,12 @@ class ThreeBase {
     return renderer;
   }
   initControls(): OrbitControls {
-    // const controls = new DeviceOrientationControls(this.camera);
+    const controls = new DeviceOrientationControls(this.camera);
     // return controls;
-    const controls = new OrbitControls(this.camera, this.renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
-    controls.enableZoom = true;
+    // const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.25;
+    // controls.enableZoom = true;
     return controls;
   }
   initLight(): this {
@@ -74,6 +77,7 @@ class ThreeBase {
     return this;
   }
   animate() {
+    this.controls.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
