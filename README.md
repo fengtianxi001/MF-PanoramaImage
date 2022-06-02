@@ -1,4 +1,4 @@
-# 🚀 MF-PanoramicPicture
+# 🚀 MF-PanoramaImage
 
 > 基于`THREE.js`的移动端陀螺仪全景图片
 
@@ -11,4 +11,4 @@
 预览提示： 推荐使用移动端浏览器打开, pc端预览请打开 `调试工具`-`More tools` - `Sensors`,调整`Orientation`模拟手机陀螺仪
 
 
-[在线预览](https://fengtianxi001.github.io/MF-PanoramicPicture/)
+[在线预览](https://fengtianxi001.github.io/MF-PanoramaImage/)
